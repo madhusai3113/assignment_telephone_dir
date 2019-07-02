@@ -1,0 +1,16 @@
+{
+"mysql" : {
+    "username" : "root",
+    "password" : "password",
+    "hostname" : "localhost",
+    "port"     : "3306",
+    "database" : "my_database"
+        },
+
+"redis" : {
+    "username" : "root",
+    "password" : "pass123",
+    "hostname" : "localhost"
+        }
+
+}
