@@ -40,8 +40,10 @@ app.post('/api/post', function (req, res) {
     console.log(req.body.name)
     //res.json(req.body);
     qureies.insert(req.body).then(result => {
-        res.send("data inserted");
-    });
+        console.log(result);
+        res.send("executed");
+
+    })
 });
 
 //api delete
@@ -60,7 +62,8 @@ app.put('/api/put/:id', function (req, res) {
     qureies.update(req.body,req.params.id).then(result => {
         console.log(req.body.Id, req.body.Redis_key);
         res.send("data updated");
-    });
+    })
+    
 });
 
 //listening

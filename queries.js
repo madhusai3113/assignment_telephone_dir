@@ -59,6 +59,10 @@ var insert_non_existing = function (body) {
                     .then(function (results, metadata) {
                         return results;
                     })
+                    .catch(function(reject){
+                        console.log(reject)
+                        return reject
+                    })
 
             })
     })
@@ -121,29 +125,42 @@ var file = module.exports = {
 
 
     insert: function (body) {
-        return model.user.findOne({
-            where:
-            {
-                name: body.name
+
+        return model.phone.findOne({
+            where:{
+                phoneNum:body.phoneNum
             }
-        }).then(function (results, reject) {
-            if (results) {
-                console.log(results.get('name'));
-                console.log(results.get('id'));
-                model.phone.create({
-                    uid: results.get('id'),
-                    phoneNum: body.phoneNum,
-                    address: body.address
+        }).then(function(res,rej){
+            if(!res){
+                return model.user.findOne({
+                    where:
+                    {
+                        name: body.name
+                    }
+                }).then(function (results) {
+                    if (results) {
+                        console.log(results.get('name'));
+                        console.log(results.get('id'));
+                        model.phone.create({
+                            uid: results.get('id'),
+                            phoneNum: body.phoneNum,
+                            address: body.address
+                        })
+                            .then(function (results, metadata) {
+                                return results;
+                            })
+                            
+                    }
+                    else {
+                        insert_non_existing(body)
+                    }
                 })
-                    .then(function (results, metadata) {
-                        return results;
-                    })
+                
             }
-            else {
-                insert_non_existing(body)
+            else{
+                
             }
         })
-
     },
 
 

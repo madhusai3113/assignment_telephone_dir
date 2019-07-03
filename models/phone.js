@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
     },
     phoneNum: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      unique:true
     },
     address: {
       type: DataTypes.STRING
