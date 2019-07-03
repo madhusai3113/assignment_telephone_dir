@@ -38,10 +38,9 @@ app.get('/api/', function (req, res) {
 //api post 
 app.post('/api/post', function (req, res) {
     console.log(req.body.name)
-    res.json(req.body.name);
-    qureies.insert(req.body.name,req.body.address,req.body.phoneNum).then(result => {
-        console.log(result);
-        res.send("result");
+    //res.json(req.body);
+    qureies.insert(req.body).then(result => {
+        res.send("data inserted");
     });
 });
 
@@ -50,17 +49,17 @@ app.delete('/api/delete/:id', function (req, res) {
     var id = req.params.id;
     console.log(id)
     qureies.delete(id).then(result => {
-        console.log(result);
-        res.send("result");
+        //console.log(result);
+        res.send("data deleted");
     });
 });
 
 
-app.put('/api/put', function (req, res) {
+app.put('/api/put/:id', function (req, res) {
     console.log(req.body.Redis_key)
-    qureies.update(req.body.Id, req.body.Redis_key).then(result => {
+    qureies.update(req.body,req.params.id).then(result => {
         console.log(req.body.Id, req.body.Redis_key);
-        res.send(result);
+        res.send("data updated");
     });
 });
 

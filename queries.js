@@ -14,7 +14,7 @@ var sequelize = new Sequelize(db.mysql.database, db.mysql.username, db.mysql.pas
     {
         host: db.mysql.hostname,
         dialect: 'mysql'
-    },opts);
+    }, opts);
 
 
 sequelize
@@ -32,13 +32,39 @@ sequelize
 
 
 var foriegn_key = function () {
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
         model.user.hasMany(model.phone, { foreignKey: 'uid' });
         model.phone.belongsTo(model.user, { foreignKey: 'id' });
         resolve();
     })
 }
 
+var insert_non_existing = function (body) {
+    return model.user.create({
+        id: null,
+        name: body.name
+    }).then(() => {
+        model.user.findOne({
+            where:
+            {
+                name: body.name
+            }
+        })
+            .then(function (result) {
+                model.phone.create({
+                    uid: result.get('id'),
+                    phoneNum: body.phoneNum,
+                    address: body.address
+                })
+                    .then(function (results, metadata) {
+                        return results;
+                    })
+
+            })
+    })
+
+
+}
 
 
 ///functions
@@ -51,7 +77,7 @@ var file = module.exports = {
             },
             include: [{
                 model: model.phone
-                }]
+            }]
         })
             .then(function (results) {
                 return results;
@@ -59,52 +85,99 @@ var file = module.exports = {
     },
 
     selectall: function () {
+
         return model.user.findAll({
-            include: [{
-                model: model.phone
-                }]
+            include:
+                [
+                    {
+                        model: model.phone,
+
+                    }
+                ]
         })
             .then(function (results) {
                 return results;
             });
     },
 
-    insert: function (value,address,phoneNum) {
-        value = "'" + value + "'";
-        //let q_string = "INSERT INTO my_database.my_table (Redis_key) VALUES (" + value + ");";
-        return model.user.create({
-            name: value
-        }).then(function(){
-            return model.phone.create({
-                phoneNum: phoneNum,
-                uid: id,
-                address:address
-            }).then(function (results, metadata) {
-                return results;
-            });
-        })
-            
-    },
-    delete: function (id) {
-        //let q_string = "delete FROM my_database.my_table where id=+" + id + ";";
-        return model.user.destroy({
-            where: {
-                id: id
+
+    // insert_non_existing: function (body) {
+    //     return model.user.create({
+    //         id: null,
+    //         name: body.name
+    //     })
+    //         .then(() => {
+    //             model.phone.create({
+    //                 uid: body.id,
+    //                 phoneNum: body.phoneNum,
+    //                 address: body.address
+    //             })
+    //                 .then(function (results, metadata) {
+    //                     return results;
+    //                 })
+
+    //         })
+    // },
+
+
+    insert: function (body) {
+        return model.user.findOne({
+            where:
+            {
+                name: body.name
+            }
+        }).then(function (results, reject) {
+            if (results) {
+                console.log(results.get('name'));
+                console.log(results.get('id'));
+                model.phone.create({
+                    uid: results.get('id'),
+                    phoneNum: body.phoneNum,
+                    address: body.address
+                })
+                    .then(function (results, metadata) {
+                        return results;
+                    })
+            }
+            else {
+                insert_non_existing(body)
             }
         })
-            .then(function (results, metadata) {
-                return results;
-            });
+
     },
-    update: function (id, value) {
-        value = "'" + value + "'";
-        //let q_string = "UPDATE my_database.my_table SET Redis_key=" + value + "WHERE Id=" + id + ";";
-        return Project.update(
-            { name: value },
-            { where: { id: id } }
-          )
+
+
+
+    delete: function (id) {
+        return model.phone.destroy({
+            where: {
+                uid: id
+            }
+        }).then(() => {
+            model.user.destroy({
+                where: {
+                    id: id
+                }
+            }).then(function (results, metadata) {
+                return results;
+            })
+        })
+
+    },
+
+    update: function (body, id) {
+        return model.phone.update({
+            address: body.address,
+            phoneNum: body.phoneNum
+        },
+            {
+                where: { id: id }
+            })
             .then(function (results, metadata) {
                 return results;
-            });
+            })
+            .catch(err =>
+                handleError(err)
+            )
     }
 }
