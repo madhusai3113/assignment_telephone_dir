@@ -19,6 +19,10 @@ module.exports = {
         type: Sequelize.STRING,
         unique:true
       },
+      aadhar: {
+        type: Sequelize.STRING,
+        unique:true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
